@@ -13,13 +13,29 @@ use crate::ui::render;
 #[derive(Debug)]
 pub struct App {
     pub transactions: Vec<Transaction>,
-    pub table_state: TableState
+    pub table_state: TableState,
+    pub screen: Screen,
+    pub input_amount: String,
+    pub input_description: String,
+    pub input_category: String,
+    pub input_field: usize
+}
+
+#[derive(Debug)]
+pub enum Screen {
+    List,
+    AddTransaction,
 }
 
 pub fn run(terminal: &mut DefaultTerminal) -> Result<()> {
     let mut app = App {
         transactions: storage::load()?,
         table_state: TableState::default(),
+        screen: Screen::List,
+        input_amount: String::new(),
+        input_description: String::new(),
+        input_category: String::new(),
+        input_field: 0
     };
 
     loop {
@@ -38,6 +54,7 @@ fn handle_input(app: &mut App) -> Result<bool> {
                 KeyCode::Char('q') => return Ok(true),
                 KeyCode::Down | KeyCode::Char('j') => app.table_state.select_next(),
                 KeyCode::Up | KeyCode::Char('k') => app.table_state.select_previous(),
+                KeyCode::Char('a') => app.screen = Screen::AddTransaction,
                 _ => {}
             }
         }
