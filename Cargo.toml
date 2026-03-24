@@ -5,5 +5,9 @@ edition = "2024"
 
 [dependencies]
 anyhow = "1.0.102"
+chrono = { version = "0.4.44", features = ["serde"] }
 crossterm = "0.29.0"
 ratatui = "0.30.0"
+rust_decimal = { version = "1.40.0", features = ["serde-with-str"] }
+serde = { version = "1.0.228", features = ["derive"] }
+serde_json = "1.0.149"
