@@ -1,11 +1,12 @@
 use std::time::Duration;
+use rust_decimal::Decimal;
 
 use anyhow::{Context, Result};
 use ratatui::DefaultTerminal;
 use ratatui::widgets::TableState;
 use crossterm::event::{self, KeyCode};
 
-use crate::models::transaction::Transaction;
+use crate::models::transaction::{Transaction, TransactionType};
 use crate::storage;
 
 use crate::ui::render;
@@ -50,12 +51,67 @@ pub fn run(terminal: &mut DefaultTerminal) -> Result<()> {
 fn handle_input(app: &mut App) -> Result<bool> {
     if event::poll(Duration::from_millis(250)).context("event poll failed")? {
         if let event::Event::Key(key) = event::read()? {
-            match key.code {
-                KeyCode::Char('q') => return Ok(true),
-                KeyCode::Down | KeyCode::Char('j') => app.table_state.select_next(),
-                KeyCode::Up | KeyCode::Char('k') => app.table_state.select_previous(),
-                KeyCode::Char('a') => app.screen = Screen::AddTransaction,
-                _ => {}
+            match app.screen {
+                Screen::List => {
+                    match key.code {
+                        KeyCode::Char('q') => return Ok(true),
+                        KeyCode::Down | KeyCode::Char('j') => app.table_state.select_next(),
+                        KeyCode::Up | KeyCode::Char('k') => app.table_state.select_previous(),
+                        KeyCode::Char('a') => app.screen = Screen::AddTransaction,
+                        _ => {}
+                    }
+                }
+                Screen::AddTransaction => {
+                    match key.code {
+                        KeyCode::Esc => {
+                            app.screen = Screen::List;
+                            app.input_description.clear();
+                            app.input_amount.clear();
+                            app.input_category.clear();
+                            app.input_field = 0;
+                        }
+                        KeyCode::Tab => {
+                            app.input_field = (app.input_field + 1) % 3;
+                        }
+                        KeyCode::Enter => {
+                            let amount = match app.input_amount.parse::<Decimal>() {
+                                Ok(a) => a,
+                                Err(_) => return Ok(false),
+                            };
+                            let transaction = Transaction {
+                                amount,
+                                description: app.input_description.clone(),
+                                category: app.input_category.clone(),
+                                date: chrono::Local::now().date_naive(),
+                                transaction_type: TransactionType::Expense,
+                            };
+                            app.transactions.push(transaction);
+                            storage::save(&app.transactions)?;
+                            app.input_description.clear();
+                            app.input_amount.clear();
+                            app.input_category.clear();
+                            app.input_field = 0;
+                            app.screen = Screen::List;
+                        }
+                        KeyCode::Backspace => {
+                            match app.input_field {
+                                0 => { app.input_description.pop(); }
+                                1 => { app.input_amount.pop(); }
+                                2 => { app.input_category.pop(); }
+                                _ => {}
+                            }
+                        }
+                        KeyCode::Char(c) => {
+                            match app.input_field {
+                                0 => app.input_description.push(c),
+                                1 => app.input_amount.push(c),
+                                2 => app.input_category.push(c),
+                                _ => {}
+                            }
+                        }
+                        _ => {}
+                    }
+                }
             }
         }
     }

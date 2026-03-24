@@ -5,5 +5,12 @@
     "category": "test",
     "date": "2021-01-01",
     "transaction_type": "Income"
+  },
+  {
+    "amount": "32.4",
+    "description": "Teste",
+    "category": "Income",
+    "date": "2026-03-24",
+    "transaction_type": "Expense"
   }
 ]
