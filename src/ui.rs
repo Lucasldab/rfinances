@@ -1,10 +1,11 @@
 use ratatui::Frame;
 use ratatui::widgets::{Table, Row, Cell, Block, Borders};
 use ratatui::layout::Constraint;
+use ratatui::style::Style;
 
 use crate::app::App;
 
-pub fn render(frame: &mut Frame, app: &App) {
+pub fn render(frame: &mut Frame, app: &mut App) {
     let rows = app.transactions.iter().map(|t| {
         Row::new(vec![
             Cell::from(t.date.to_string()),
@@ -24,7 +25,8 @@ pub fn render(frame: &mut Frame, app: &App) {
     ])
     .header(Row::new(vec!["Date", "Description", "Category", "Amount", "Type"]))
     .block(Block::default().title("Transactions").borders(Borders::ALL))
-    .column_spacing(1);
+    .column_spacing(1)
+    .row_highlight_style(Style::default().reversed());
 
-    frame.render_widget(table, frame.area());
+    frame.render_stateful_widget(table, frame.area(), &mut app.table_state);
 }
