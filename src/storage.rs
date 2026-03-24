@@ -20,3 +20,27 @@ pub fn save(transactions: &[Transaction]) -> Result<()> {
     serde_json::to_writer_pretty(std::fs::File::create(path)?, transactions)?;
     Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::models::transaction::Transaction;
+    use rust_decimal::Decimal;
+    use chrono::NaiveDate;
+    use crate::models::transaction::TransactionType;
+
+    #[test]
+    fn test_save_and_load() {
+    let transactions = vec![Transaction {
+    amount: Decimal::new(10, 0),
+    description: "test".to_string(),
+    category: "test".to_string(),
+    date:NaiveDate::from_ymd_opt(2021, 1, 1).unwrap(),
+    transaction_type: TransactionType::Income,
+    }];
+
+    save(&transactions).unwrap();
+    let loaded = load().unwrap();
+    assert_eq!(loaded.len(), 1);
+    }
+}

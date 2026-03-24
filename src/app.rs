@@ -4,11 +4,25 @@ use anyhow::{Context, Result};
 use ratatui::DefaultTerminal;
 use crossterm::event::{self, KeyCode};
 
+use crate::models::transaction::Transaction;
+use crate::storage;
+
 use crate::ui::render;
 
+#[derive(Debug)]
+pub struct App {
+    pub transactions: Vec<Transaction>,
+    pub selected: usize
+}
+
 pub fn run(terminal: &mut DefaultTerminal) -> Result<()> {
+    let mut app = App {
+        transactions: storage::load()?,
+        selected: 0
+    };
+
     loop {
-        terminal.draw(render)?;
+        terminal.draw(|frame| render(frame, &app))?;
         if should_quit()? {
             break;
         }
