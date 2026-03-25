@@ -4,7 +4,7 @@ use ratatui::layout::{Layout, Direction, Constraint};
 use ratatui::widgets::Paragraph;
 use ratatui::style::Style;
 use rust_decimal::Decimal;
-
+use ratatui::style::Color;
 
 use crate::app::Screen;
 use crate::app::App;
@@ -61,24 +61,48 @@ pub fn render(frame: &mut Frame, app: &mut App) {
                     Constraint::Length(1),
                 ])
                 .split(frame.area());
+            let description_block = if app.input_field == 0 {
+                Block::default().title("Description").borders(Borders::ALL)
+                    .border_style(Style::default().fg(Color::Yellow))
+            } else {
+                Block::default().title("Description").borders(Borders::ALL)
+            };
             frame.render_widget(
                 Paragraph::new(app.input_description.clone())
-                    .block(Block::default().title("Description").borders(Borders::ALL)),
+                    .block(description_block),
                 chunks[0]
             );
+             let amount_block = if app.input_field == 1 {
+                Block::default().title("Amount").borders(Borders::ALL)
+                    .border_style(Style::default().fg(Color::Yellow))
+            } else {
+                Block::default().title("Amount").borders(Borders::ALL)
+            };
             frame.render_widget(
                 Paragraph::new(app.input_amount.clone())
-                    .block(Block::default().title("Amount").borders(Borders::ALL)),
+                    .block(amount_block),
                 chunks[1]
             );
+             let category_block = if app.input_field == 2 {
+                Block::default().title("Category").borders(Borders::ALL)
+                    .border_style(Style::default().fg(Color::Yellow))
+            } else {
+                Block::default().title("Category").borders(Borders::ALL)
+            };
             frame.render_widget(
                 Paragraph::new(app.input_category.clone())
-                    .block(Block::default().title("Category").borders(Borders::ALL)),
+                    .block(category_block),
                 chunks[2]
             );
+             let type_block = if app.input_field == 3 {
+                Block::default().title("Type").borders(Borders::ALL)
+                    .border_style(Style::default().fg(Color::Yellow))
+            } else {
+                Block::default().title("Type").borders(Borders::ALL)
+            };
             frame.render_widget(
                 Paragraph::new(format!("Type: {:?} (press t to toggle)", app.input_type))
-                    .block(Block::default().title("Type").borders(Borders::ALL)),
+                    .block(type_block),
                 chunks[3]
             );
             frame.render_widget(
