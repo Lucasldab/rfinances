@@ -13,6 +13,14 @@ use crate::models::transaction::TransactionType;
 pub fn render(frame: &mut Frame, app: &mut App) {
     match app.screen {
         Screen::List => {
+            let layout = Layout::default()
+                .direction(Direction::Vertical)
+                .constraints([
+                    Constraint::Min(0),
+                    Constraint::Length(1),
+                ])
+                .split(frame.area());
+
             let rows = app.transactions.iter().map(|t| {
                 Row::new(vec![
                     Cell::from(t.date.to_string()),
@@ -34,7 +42,13 @@ pub fn render(frame: &mut Frame, app: &mut App) {
                 .block(Block::default().title("Transactions").borders(Borders::ALL))
                 .column_spacing(1)
                 .row_highlight_style(Style::default().reversed());
-            frame.render_stateful_widget(table, frame.area(), &mut app.table_state);
+            frame.render_stateful_widget(table, layout[0], &mut app.table_state);
+
+            frame.render_widget(
+                Paragraph::new(" a  add | d  dashboard | j/k  navigate | q  quit")
+                    .style(Style::default().reversed()),
+                layout[1]
+            );
         }
         Screen::AddTransaction => {
             let chunks = Layout::default()
@@ -43,6 +57,7 @@ pub fn render(frame: &mut Frame, app: &mut App) {
                     Constraint::Length(3),
                     Constraint::Length(3),
                     Constraint::Length(3),
+                    Constraint::Length(1),
                 ])
                 .split(frame.area());
             frame.render_widget(
@@ -60,6 +75,11 @@ pub fn render(frame: &mut Frame, app: &mut App) {
                     .block(Block::default().title("Category").borders(Borders::ALL)),
                 chunks[2]
             );
+            frame.render_widget(
+                Paragraph::new(" tab  next field | enter  save | esc  cancel")
+                    .style(Style::default().reversed()),
+                chunks[3]
+            );
         }
         Screen::Dashboard => {
             let total_income: Decimal = app.transactions.iter().filter(|t| t.transaction_type == TransactionType::Income).map(|t| t.amount).sum();
@@ -72,7 +92,7 @@ pub fn render(frame: &mut Frame, app: &mut App) {
                     Constraint::Length(3),
                     Constraint::Length(3),
                     Constraint::Length(3),
-                    Constraint::Length(3),
+                    Constraint::Length(1),
                 ])
                 .split(frame.area());
             frame.render_widget(
@@ -91,6 +111,12 @@ pub fn render(frame: &mut Frame, app: &mut App) {
                 Paragraph::new(format!("Balance: {}", total_balance))
                     .block(Block::default().title("Dashboard").borders(Borders::ALL)),
                 chunks[2]
+            );
+
+            frame.render_widget(
+                Paragraph::new(" esc  back | q  quit")
+                    .style(Style::default().reversed()),
+                chunks[3]
             );
         }
     }
