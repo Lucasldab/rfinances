@@ -19,7 +19,8 @@ pub struct App {
     pub input_amount: String,
     pub input_description: String,
     pub input_category: String,
-    pub input_field: usize
+    pub input_field: usize,
+    pub input_type: TransactionType
 }
 
 #[derive(Debug)]
@@ -37,7 +38,8 @@ pub fn run(terminal: &mut DefaultTerminal) -> Result<()> {
         input_amount: String::new(),
         input_description: String::new(),
         input_category: String::new(),
-        input_field: 0
+        input_field: 0,
+        input_type: TransactionType::Expense
     };
 
     loop {
@@ -73,7 +75,7 @@ fn handle_input(app: &mut App) -> Result<bool> {
                             app.input_field = 0;
                         }
                         KeyCode::Tab => {
-                            app.input_field = (app.input_field + 1) % 3;
+                            app.input_field = (app.input_field + 1) % 4;
                         }
                         KeyCode::Enter => {
                             let amount = match app.input_amount.parse::<Decimal>() {
@@ -85,7 +87,7 @@ fn handle_input(app: &mut App) -> Result<bool> {
                                 description: app.input_description.clone(),
                                 category: app.input_category.clone(),
                                 date: chrono::Local::now().date_naive(),
-                                transaction_type: TransactionType::Expense,
+                                transaction_type: app.input_type.clone(),
                             };
                             app.transactions.push(transaction);
                             storage::save(&app.transactions)?;
@@ -94,6 +96,7 @@ fn handle_input(app: &mut App) -> Result<bool> {
                             app.input_category.clear();
                             app.input_field = 0;
                             app.screen = Screen::List;
+                            app.input_type = TransactionType::Expense;
                         }
                         KeyCode::Backspace => {
                             match app.input_field {
@@ -102,16 +105,23 @@ fn handle_input(app: &mut App) -> Result<bool> {
                                 2 => { app.input_category.pop(); }
                                 _ => {}
                             }
-                        }
+                    }
                         KeyCode::Char(c) => {
                             match app.input_field {
                                 0 => app.input_description.push(c),
                                 1 => app.input_amount.push(c),
                                 2 => app.input_category.push(c),
+                                3 => {
+                                    if c == 't' {
+                                        app.input_type = match app.input_type {
+                                            TransactionType::Income => TransactionType::Expense,
+                                            TransactionType::Expense => TransactionType::Income,
+                                        };
+                                    }
+                                }
                                 _ => {}
                             }
                         }
-
                         _ => {}
                     }
                 }

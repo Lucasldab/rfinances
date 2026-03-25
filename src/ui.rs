@@ -57,6 +57,7 @@ pub fn render(frame: &mut Frame, app: &mut App) {
                     Constraint::Length(3),
                     Constraint::Length(3),
                     Constraint::Length(3),
+                    Constraint::Length(3),
                     Constraint::Length(1),
                 ])
                 .split(frame.area());
@@ -76,9 +77,14 @@ pub fn render(frame: &mut Frame, app: &mut App) {
                 chunks[2]
             );
             frame.render_widget(
-                Paragraph::new(" tab  next field | enter  save | esc  cancel")
-                    .style(Style::default().reversed()),
+                Paragraph::new(format!("Type: {:?} (press t to toggle)", app.input_type))
+                    .block(Block::default().title("Type").borders(Borders::ALL)),
                 chunks[3]
+            );
+            frame.render_widget(
+                Paragraph::new(" tab  next field | enter  save | esc  cancel | t  toggle type")
+                    .style(Style::default().reversed()),
+                chunks[4]
             );
         }
         Screen::Dashboard => {
