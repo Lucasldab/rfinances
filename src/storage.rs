@@ -2,7 +2,10 @@ use anyhow::Result;
 use crate::models::transaction::Transaction;
 
 pub fn load() -> Result<Vec<Transaction>> {
-    let path = std::path::Path::new("~/.local/share/rfinances/data.json");
+    let path = dirs::data_local_dir()
+        .expect("could not find data directory")
+        .join("rfinances")
+        .join("data.json");
 
     if !path.exists() {
         Ok(vec![])
@@ -15,7 +18,10 @@ pub fn load() -> Result<Vec<Transaction>> {
 }
 
 pub fn save(transactions: &[Transaction]) -> Result<()> {
-    let path = std::path::Path::new("~/.local/share/rfinances/data.json");
+    let path = dirs::data_local_dir()
+        .expect("could not find data directory")
+        .join("rfinances")
+        .join("data.json");
     std::fs::create_dir_all(path.parent().unwrap())?;
     serde_json::to_writer_pretty(std::fs::File::create(path)?, transactions)?;
     Ok(())
