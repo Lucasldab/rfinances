@@ -26,6 +26,7 @@ pub struct App {
 pub enum Screen {
     List,
     AddTransaction,
+    Dashboard,
 }
 
 pub fn run(terminal: &mut DefaultTerminal) -> Result<()> {
@@ -58,6 +59,7 @@ fn handle_input(app: &mut App) -> Result<bool> {
                         KeyCode::Down | KeyCode::Char('j') => app.table_state.select_next(),
                         KeyCode::Up | KeyCode::Char('k') => app.table_state.select_previous(),
                         KeyCode::Char('a') => app.screen = Screen::AddTransaction,
+                        KeyCode::Char('d') => app.screen = Screen::Dashboard,
                         _ => {}
                     }
                 }
@@ -109,6 +111,14 @@ fn handle_input(app: &mut App) -> Result<bool> {
                                 _ => {}
                             }
                         }
+
+                        _ => {}
+                    }
+                }
+                Screen::Dashboard => {
+                    match key.code {
+                        KeyCode::Char('q') => return Ok(true),
+                        KeyCode::Esc => app.screen = Screen::List,
                         _ => {}
                     }
                 }
