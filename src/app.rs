@@ -20,7 +20,8 @@ pub struct App {
     pub input_description: String,
     pub input_category: String,
     pub input_field: usize,
-    pub input_type: TransactionType
+    pub input_type: TransactionType,
+    pub input_date: String
 }
 
 #[derive(Debug)]
@@ -39,7 +40,8 @@ pub fn run(terminal: &mut DefaultTerminal) -> Result<()> {
         input_description: String::new(),
         input_category: String::new(),
         input_field: 0,
-        input_type: TransactionType::Expense
+        input_type: TransactionType::Expense,
+        input_date: String::new()
     };
 
     loop {
